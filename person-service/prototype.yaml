@@ -1,0 +1,36 @@
+message: This is hello from %s, %s
+
+# License information for swagger documentation
+applicationTitle: Person API
+applicationDescription: API Documentation for Person REST Endpoints
+applicationTosUrl: http://www.adobe.com/tos
+applicationContact: sanayak@adobe.com
+license: You are licensed to look at this
+version: 1.0.0
+
+# Swagger docs endpoint for this service
+docsPath: http://127.0.0.1:7100/api-docs
+
+# Depenendent service urls
+addressUrl: http://localhost:9100/address/%s
+
+# Configuration for this service
+server:
+  applicationConnectors:
+    - type: http
+      port: 7100
+  adminConnectors:
+    - type: http
+      port: 7102
+      
+# Configuration for http client
+httpClient:
+  timeout: 500ms
+  connectionTimeout: 500ms
+  timeToLive: 1h
+  cookiesEnabled: false
+  maxConnections: 100
+  maxConnectionsPerRoute: 100
+  keepAlive: 0ms
+  retries: 0
+  userAgent: Person Service (Address Client)

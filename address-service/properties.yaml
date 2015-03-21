@@ -1,0 +1,16 @@
+applicationTitle: Address API
+applicationDescription: API Documentation for Address Endpoints
+applicationTosUrl: http://www.adobe.com/tos
+applicationContact: sanayak@adobe.com
+license: You are licensed to look at this
+version: 1.0.0
+
+docsPath: http://127.0.0.1:9100/api-docs
+
+server:
+  applicationConnectors:
+    - type: http
+      port: 9100
+  adminConnectors:
+    - type: http
+      port: 9102
