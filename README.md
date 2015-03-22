@@ -7,7 +7,7 @@ A prototype with dropwizard which demonstrates attributes of microservices.
 * Service Container: [DropWizard](http://dropwizard.io/)
 * Dynamic Configuration: [Archaius](https://github.com/Netflix/archaius)
 * Monitoring: [NewRelic](http://newrelic.com/)
-* Circuit Breaker:
+* Circuit Breaker: [Hystrix](https://github.com/Netflix/Hystrix)
 * Logging: [SLF4j](http://www.slf4j.org/)
 
 ## Services
@@ -93,3 +93,25 @@ curl -G http://localhost:7100/person/1 -H "Accept: application/json"
 * With the address service running, add an address and retrieve it. The second call should return a 404. 
 * Now go to the address.properties located at `${user.home}/address/address.properties` and change the text for **404**. 
 * Rerun the GET calls and on the next **404** you should see the updated message.
+
+## Circuit Breaker
+* With both Person and Address services running make calls to the Person service to create a Person
+* Call GET Person and you should see that a few responses do not have an address. See below
+
+**With Address**
+
+```
+
+{"firstName":"John","lastName":"Doe","message":"","id":1,"age":100,"address":{"id":1,"street":"my street","city":"fantastic-city","state":"NY","zipCode":"00000"}}
+
+```
+
+**Without Address**
+
+```
+{"firstName":"John","lastName":"Doe","message":"","id":1,"age":100}
+```
+
+* Now go to the Person configuration under ```${user.home}/person/person.configuration``` and change the property ```useFailSafe``` to **true**
+* Kill the Address service and make sure it is no longer running
+* Now make the same invokes and you should consistently see the address in the person GET response even if you shutdown the Address Service. What happens here is that whenever the HTTP Client experiences an exception the circuit trips and the fallback of fetch from cache kicks in.
