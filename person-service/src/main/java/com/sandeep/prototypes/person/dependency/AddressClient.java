@@ -14,9 +14,11 @@ import org.apache.http.impl.client.BasicResponseHandler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
+import com.netflix.config.DynamicBooleanProperty;
 import com.netflix.config.DynamicPropertyFactory;
 import com.netflix.config.DynamicStringProperty;
 import com.sandeep.prototypes.address.entity.Address;
+import com.sandeep.prototypes.person.circuitbreaker.FailSafeGetRequest;
 
 /**
  * <p>
@@ -34,6 +36,9 @@ public class AddressClient {
   // its updated
   private DynamicStringProperty addressUrl = DynamicPropertyFactory.getInstance()
       .getStringProperty("addressUrl", "http://localhost:9100/address/%s");
+
+  private DynamicBooleanProperty useFailSafeRequests = DynamicPropertyFactory.getInstance()
+      .getBooleanProperty("useFailSafe", false);
 
   private static class AddressResponseHandler implements ResponseHandler<Address> {
 
@@ -68,7 +73,12 @@ public class AddressClient {
     HttpGet getAddress = new HttpGet(String.format(addressUrl.get(), id));
     Address address;
     try {
-      address = client.execute(getAddress, new AddressResponseHandler());
+      if (!useFailSafeRequests.get()) {
+        address = client.execute(getAddress, new AddressResponseHandler());
+      } else {
+        address =
+            new FailSafeGetRequest(this.client, getAddress, new AddressResponseHandler()).execute();
+      }
     } catch (HttpResponseException e) {
       throw new AddressServiceExceptionBuilder(e).build();
     } catch (IOException e) {
