@@ -55,27 +55,31 @@ public class AddressResource {
     // 9 = 200
     // 10 = 200
     Address address = addresses.get(id);
+    int counter = successCount.incrementAndGet();
     if (address != null) {
-      if (successCount.incrementAndGet() == 3) {
+      if (counter == 3) {
         try {
           Thread.sleep(1000);
         } catch (InterruptedException e) {
         }
         return Response.status(Status.OK).type(MediaType.APPLICATION_JSON).entity(address).build();
       }
-      if (successCount.incrementAndGet() == 2 || successCount.incrementAndGet() == 8) {
-        return Response.status(Status.NOT_FOUND).type(MediaType.APPLICATION_JSON).build();
+      if (counter == 2 || counter == 8) {
+        return Response.status(Status.NOT_FOUND).type(MediaType.APPLICATION_JSON)
+            .entity("{\"error\":\"Not found\"}").build();
       }
-      if (successCount.incrementAndGet() > 5 && successCount.incrementAndGet() < 8) {
-        return Response.status(Status.SERVICE_UNAVAILABLE).type(MediaType.APPLICATION_JSON).build();
+      if (counter > 5 && counter < 8) {
+        return Response.status(Status.SERVICE_UNAVAILABLE)
+            .entity("{\"error\":\"Service Unavailable\"}").type(MediaType.APPLICATION_JSON).build();
       }
-      if (successCount.incrementAndGet() > 10) {
+      if (counter > 10) {
         successCount.set(0);
       }
       // Should be true for 1, 4, 5, 9 and 10
       return Response.status(Status.OK).type(MediaType.APPLICATION_JSON).entity(address).build();
     }
-    return Response.status(Status.NOT_FOUND).type(MediaType.APPLICATION_JSON).build();
+    return Response.status(Status.NOT_FOUND).entity("{\"error\":\"Not found\"}")
+        .type(MediaType.APPLICATION_JSON).build();
   }
 
   @POST

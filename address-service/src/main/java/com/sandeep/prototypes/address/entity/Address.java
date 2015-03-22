@@ -2,6 +2,14 @@ package com.sandeep.prototypes.address.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/**
+ * <p>
+ * Model class for Address, this is also the response which is serialized out to the client
+ * </p>
+ * 
+ * @author Sandeep Nayak
+ *
+ */
 public class Address {
   private int id;
   private String street;

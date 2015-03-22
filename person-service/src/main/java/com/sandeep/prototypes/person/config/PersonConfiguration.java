@@ -1,4 +1,4 @@
-package com.sandeep.prototypes.dropwizard.config;
+package com.sandeep.prototypes.person.config;
 
 import io.dropwizard.Configuration;
 import io.dropwizard.client.HttpClientConfiguration;
@@ -11,6 +11,15 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/**
+ * <p>
+ * A configuration object which is loaded with the person.yaml by DropWizard. The properties in YAML
+ * are loaded here
+ * </p>
+ * 
+ * @author Sandeep Nayak
+ *
+ */
 public class PersonConfiguration extends Configuration {
 
   @NotEmpty
@@ -29,8 +38,7 @@ public class PersonConfiguration extends Configuration {
   private String applicationContact;
   @NotEmpty
   private String license;
-  @NotEmpty
-  private String addressUrl;
+
 
   @Valid
   @NotNull
@@ -72,7 +80,7 @@ public class PersonConfiguration extends Configuration {
   }
 
   @JsonProperty
-  public void setApplicationTitke(String title) {
+  public void setApplicationTitle(String title) {
     applicationTitle = title;
   }
 
@@ -123,15 +131,6 @@ public class PersonConfiguration extends Configuration {
 
   public void setHttpClientConfiguration(HttpClientConfiguration httpClient) {
     this.httpClient = httpClient;
-  }
-
-  @JsonProperty("addressUrl")
-  public String getAddressUrl() {
-    return addressUrl;
-  }
-
-  public void setAddressUrl(String addressUrl) {
-    this.addressUrl = addressUrl;
   }
 
 }

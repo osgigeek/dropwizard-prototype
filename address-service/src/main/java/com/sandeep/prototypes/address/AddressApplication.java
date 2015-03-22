@@ -19,6 +19,14 @@ import com.wordnik.swagger.jaxrs.listing.ApiDeclarationProvider;
 import com.wordnik.swagger.jaxrs.listing.ApiListingResourceJSON;
 import com.wordnik.swagger.jaxrs.listing.ResourceListingProvider;
 
+/**
+ * <p>
+ * The address application class which puts together the address application
+ * </p>
+ * 
+ * @author Sandeep Nayak
+ *
+ */
 public class AddressApplication extends Application<AddressConfiguration> {
   private static final String NAME = "Address Provider";
 
@@ -38,10 +46,7 @@ public class AddressApplication extends Application<AddressConfiguration> {
   }
 
   @Override
-  public void initialize(Bootstrap<AddressConfiguration> arg0) {
-    // TODO Auto-generated method stub
-
-  }
+  public void initialize(Bootstrap<AddressConfiguration> bootstrapConfig) {}
 
   @Override
   public void run(AddressConfiguration addressConfiguration, Environment environment)

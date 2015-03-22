@@ -11,9 +11,6 @@ version: 1.0.0
 # Swagger docs endpoint for this service
 docsPath: http://127.0.0.1:7100/api-docs
 
-# Depenendent service urls
-addressUrl: http://localhost:9100/address/%s
-
 # Configuration for this service
 server:
   applicationConnectors:

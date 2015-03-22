@@ -1,4 +1,4 @@
-package com.sandeep.prototypes.dropwizard.resources;
+package com.sandeep.prototypes.person.resources;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,17 +20,26 @@ import com.codahale.metrics.annotation.Timed;
 import com.google.inject.Inject;
 import com.newrelic.api.agent.NewRelic;
 import com.sandeep.prototypes.address.entity.Address;
-import com.sandeep.prototypes.dropwizard.client.AddressClient;
-import com.sandeep.prototypes.dropwizard.client.AddressServiceException;
-import com.sandeep.prototypes.dropwizard.client.AddressServiceException.AddressNotFoundException;
-import com.sandeep.prototypes.dropwizard.client.AddressServiceException.AddressTemporarilyUnavailableException;
-import com.sandeep.prototypes.dropwizard.client.AddressServiceException.RequestTimeout;
-import com.sandeep.prototypes.dropwizard.core.Person;
+import com.sandeep.prototypes.person.dependency.AddressClient;
+import com.sandeep.prototypes.person.dependency.AddressServiceException;
+import com.sandeep.prototypes.person.dependency.AddressServiceException.AddressNotFoundException;
+import com.sandeep.prototypes.person.dependency.AddressServiceException.AddressTemporarilyUnavailableException;
+import com.sandeep.prototypes.person.dependency.AddressServiceException.RequestTimeout;
+import com.sandeep.prototypes.person.entity.Person;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiResponse;
 import com.wordnik.swagger.annotations.ApiResponses;
 
+/**
+ * <p>
+ * This is the actual service endpoint for person. It has annotations for Jersey, Guice for
+ * dependency injection and swagger documentation
+ * </p>
+ * 
+ * @author Sandeep Nayak
+ *
+ */
 @Path("/person")
 @Consumes("application/json")
 @Api(value = "/person", description = "Person Management API")

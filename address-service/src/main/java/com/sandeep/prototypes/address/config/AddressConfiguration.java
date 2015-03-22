@@ -6,6 +6,15 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/**
+ * <p>
+ * A configuration object which is loaded with the address.yaml by DropWizard. The properties in
+ * YAML are loaded here.
+ * </p>
+ * 
+ * @author Sandeep Nayak
+ *
+ */
 public class AddressConfiguration extends Configuration {
   @NotEmpty
   private String version;

@@ -1,4 +1,4 @@
-package com.sandeep.prototypes.dropwizard.client;
+package com.sandeep.prototypes.person.dependency;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -14,13 +14,26 @@ import org.apache.http.impl.client.BasicResponseHandler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
+import com.netflix.config.DynamicPropertyFactory;
+import com.netflix.config.DynamicStringProperty;
 import com.sandeep.prototypes.address.entity.Address;
 
+/**
+ * <p>
+ * A client class for Address Service. Ideally this is provided by the Address Service but since
+ * this is a prototype its here to avoid spending too much time on separating builds and projects
+ * </p>
+ * 
+ * @author Sandeep Nayak
+ *
+ */
 public class AddressClient {
 
   private final HttpClient client;
-  private final String addressUrl;
+  // Its ok to cache this handle statically as the handle will refresh the underlying property when
+  // its updated
+  private DynamicStringProperty addressUrl = DynamicPropertyFactory.getInstance()
+      .getStringProperty("addressUrl", "http://localhost:9100/address/%s");
 
   private static class AddressResponseHandler implements ResponseHandler<Address> {
 
@@ -38,14 +51,21 @@ public class AddressClient {
 
   }
 
+  /**
+   * <p>
+   * Constructs an address client with an http client injected via Guice
+   * </p>
+   * 
+   * @param client
+   */
   @Inject
-  public AddressClient(@Named("addressUrl") String addressUrl, HttpClient client) {
+  public AddressClient(HttpClient client) {
     this.client = client;
-    this.addressUrl = addressUrl;
   }
 
   public Address getAddress(int id) throws AddressServiceException {
-    HttpGet getAddress = new HttpGet(String.format(addressUrl, id));
+    // We simply use the addressUrl handle here and get will give us the latest configuration
+    HttpGet getAddress = new HttpGet(String.format(addressUrl.get(), id));
     Address address;
     try {
       address = client.execute(getAddress, new AddressResponseHandler());

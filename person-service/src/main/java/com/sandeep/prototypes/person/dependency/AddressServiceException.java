@@ -1,26 +1,39 @@
-package com.sandeep.prototypes.dropwizard.client;
+package com.sandeep.prototypes.person.dependency;
 
+/**
+ * <p>
+ * The base exception for address service exceptions. Each extension of this exception is for a
+ * specific HTTP response code.
+ * </p>
+ * 
+ * @author Sandeep Nayak
+ *
+ */
 public abstract class AddressServiceException extends Exception {
 
   private static final long serialVersionUID = -5404109512229360313L;
+  private final int responseCode;
 
   /**
-   * Base exception for address service from which all other address exceptions are to be derived
-   * 
-   * @param message the message
-   */
-  protected AddressServiceException(String message) {
-    super(message);
-  }
-
-  /**
-   * Base exception for address service from which all other address exceptions are to be derived
+   * Base exception for address service from which all other address exceptions are to be derived.
    * 
    * @param message the message
    * @param cause the cause
    */
   protected AddressServiceException(int responseCode, String message, Throwable cause) {
-    super(cause);
+    super(message, cause);
+    this.responseCode = responseCode;
+  }
+
+  /**
+   * <p>
+   * Returns the response code which caused this exception
+   * </p>
+   * 
+   * @return int the HTTP response code
+   */
+  public int getResponseCode() {
+    return responseCode;
   }
 
   /**
@@ -69,6 +82,12 @@ public abstract class AddressServiceException extends Exception {
     }
   }
 
+  /**
+   * Exception maps to a generic IOException
+   * 
+   * @author Sandeep Nayak
+   *
+   */
   public static class IOException extends AddressServiceException {
 
     private static final long serialVersionUID = -5201697888200917536L;

@@ -1,4 +1,4 @@
-package com.sandeep.prototypes.dropwizard.core;
+package com.sandeep.prototypes.person.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sandeep.prototypes.address.entity.Address;
@@ -6,6 +6,11 @@ import com.wordnik.swagger.annotations.ApiModel;
 import com.wordnik.swagger.annotations.ApiModelProperty;
 
 @ApiModel(value = "A Person")
+/**
+ * <p>Model class for Person, this is also the response which is serialized out to the client</p>
+ * @author Sandeep Nayak
+ *
+ */
 public class Person {
 
   private String firstName;
