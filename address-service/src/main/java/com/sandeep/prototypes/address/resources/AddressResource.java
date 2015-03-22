@@ -15,6 +15,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import com.codahale.metrics.annotation.Timed;
+import com.netflix.config.DynamicPropertyFactory;
+import com.netflix.config.DynamicStringProperty;
 import com.sandeep.prototypes.address.entity.Address;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
@@ -27,6 +29,10 @@ import com.wordnik.swagger.annotations.ApiResponses;
 public class AddressResource {
   private final ConcurrentMap<Integer, Address> addresses;
   private final AtomicInteger successCount;
+  private static final DynamicStringProperty error_404 = DynamicPropertyFactory.getInstance()
+      .getStringProperty("404", "{\"error\":\"Not found\"}");
+  private static final DynamicStringProperty error_503 = DynamicPropertyFactory.getInstance()
+      .getStringProperty("503", "{\"error\":\"Service Unavailable\"}");
 
   public AddressResource() {
     addresses = new ConcurrentHashMap<Integer, Address>();
@@ -66,11 +72,11 @@ public class AddressResource {
       }
       if (counter == 2 || counter == 8) {
         return Response.status(Status.NOT_FOUND).type(MediaType.APPLICATION_JSON)
-            .entity("{\"error\":\"Not found\"}").build();
+            .entity(error_404.get()).build();
       }
       if (counter > 5 && counter < 8) {
-        return Response.status(Status.SERVICE_UNAVAILABLE)
-            .entity("{\"error\":\"Service Unavailable\"}").type(MediaType.APPLICATION_JSON).build();
+        return Response.status(Status.SERVICE_UNAVAILABLE).entity(error_503.get())
+            .type(MediaType.APPLICATION_JSON).build();
       }
       if (counter > 10) {
         successCount.set(0);
@@ -78,7 +84,7 @@ public class AddressResource {
       // Should be true for 1, 4, 5, 9 and 10
       return Response.status(Status.OK).type(MediaType.APPLICATION_JSON).entity(address).build();
     }
-    return Response.status(Status.NOT_FOUND).entity("{\"error\":\"Not found\"}")
+    return Response.status(Status.NOT_FOUND).entity(error_503.get())
         .type(MediaType.APPLICATION_JSON).build();
   }
 

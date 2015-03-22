@@ -4,14 +4,23 @@ import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 
+import java.net.MalformedURLException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.EnumSet;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
 
+import org.apache.commons.configuration.ConfigurationException;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.netflix.config.DynamicConfiguration;
+import com.netflix.config.DynamicPropertyFactory;
+import com.netflix.config.FixedDelayPollingScheduler;
+import com.netflix.config.PolledConfigurationSource;
+import com.netflix.config.sources.URLConfigurationSource;
 import com.sandeep.prototypes.address.config.AddressConfiguration;
 import com.sandeep.prototypes.address.resources.AddressResource;
 import com.wordnik.swagger.jaxrs.config.BeanConfig;
@@ -46,7 +55,37 @@ public class AddressApplication extends Application<AddressConfiguration> {
   }
 
   @Override
-  public void initialize(Bootstrap<AddressConfiguration> bootstrapConfig) {}
+  public void initialize(Bootstrap<AddressConfiguration> bootstrapConfig) {
+    try {
+      DynamicPropertyFactory.initWithConfigurationSource(getPropertiesConfiguration());
+    } catch (Throwable e) {
+      throw new IllegalStateException(e);
+    }
+  }
+
+  /**
+   * <p>
+   * In this method we are initializing the Archaius configuration manager to load configurations
+   * from a properties file.
+   * 
+   * The steps to initializing the configuration is as follows
+   * <ul>
+   * <li>Create a configuration source for the file which contains the properties</li>
+   * <li>Create a dynamic configuration around the source so that the source is polled, the polling
+   * can be configured to be at a different frequency</li>
+   * </ul>
+   * 
+   * @return DynamicConfiguration
+   * @throws ConfigurationException
+   * @throws MalformedURLException
+   */
+  private DynamicConfiguration getPropertiesConfiguration() throws ConfigurationException,
+      MalformedURLException {
+    String userHome = System.getProperty("user.home");
+    Path properties = Paths.get(userHome, "config-root", "address", "address.properties");
+    PolledConfigurationSource polledSource = new URLConfigurationSource(properties.toUri().toURL());
+    return new DynamicConfiguration(polledSource, new FixedDelayPollingScheduler());
+  }
 
   @Override
   public void run(AddressConfiguration addressConfiguration, Environment environment)

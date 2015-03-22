@@ -24,6 +24,16 @@
 			<artifactId>swagger-jaxrs_2.10</artifactId>
 			<version>${swagger.version}</version>
 		</dependency>
+		<dependency>
+            <groupId>com.netflix.archaius</groupId>
+            <artifactId>archaius-core</artifactId>
+            <version>0.6.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>18.0</version>
+        </dependency>
 	</dependencies>
 	<properties>
         <!-- use UTF-8 for everything -->
@@ -81,6 +91,14 @@
                             <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                         </manifest>
                     </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-eclipse-plugin</artifactId>
+                <configuration>
+                    <downloadSources>true</downloadSources>
+                    <downloadJavadocs>true</downloadJavadocs>
                 </configuration>
             </plugin>
         </plugins>
