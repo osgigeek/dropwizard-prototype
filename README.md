@@ -46,7 +46,7 @@ To build the person and address service do the following
 * mvn clean package at the folder where the pom.xml exists
 
 ### Setup Configuration 
-Copy the person.properties and address.properties into ${user.home}/person/person.properties and ${user.home}/address/address.properties where `user.home is your home folder`.
+Copy the person.properties and address.properties into ${user.home}/config-root/person/person.properties and ${user.home}/config-root/address/address.properties where `user.home is your home folder`.
 
 
 ## Running the samples
@@ -91,7 +91,7 @@ curl -G http://localhost:7100/person/1 -H "Accept: application/json"
 
 ## Dynamic Configuration in action
 * With the address service running, add an address and retrieve it. The second call should return a 404. 
-* Now go to the address.properties located at `${user.home}/address/address.properties` and change the text for **404**. 
+* Now go to the address.properties located at `${user.home}/config-root/address/address.properties` and change the text for **404**. 
 * Rerun the GET calls and on the next **404** you should see the updated message.
 
 ## Circuit Breaker
@@ -112,6 +112,6 @@ curl -G http://localhost:7100/person/1 -H "Accept: application/json"
 {"firstName":"John","lastName":"Doe","message":"","id":1,"age":100}
 ```
 
-* Now go to the Person configuration under ```${user.home}/person/person.configuration``` and change the property ```useFailSafe``` to **true**
+* Now go to the Person configuration under ```${user.home}/config-root/person/person.configuration``` and change the property ```useFailSafe``` to **true**
 * Kill the Address service and make sure it is no longer running
 * Now make the same invokes and you should consistently see the address in the person GET response even if you shutdown the Address Service. What happens here is that whenever the HTTP Client experiences an exception the circuit trips and the fallback of fetch from cache kicks in.
