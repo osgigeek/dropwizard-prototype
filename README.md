@@ -43,7 +43,7 @@ Once you have the newrelic zip file downloaded, unzip the contents into the pers
 ### Build
 To build the person and address service do the following
 
-* mvn clean package at the folder where the pom.xml exists
+* mvn clean package install at the folder where the pom.xml exists
 
 ### Setup Configuration 
 Copy the person.properties and address.properties into ${user.home}/config-root/person/person.properties and ${user.home}/config-root/address/address.properties where `user.home is your home folder`.
