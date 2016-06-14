@@ -18,6 +18,8 @@ import org.slf4j.LoggerFactory;
 
 import com.codahale.metrics.annotation.Timed;
 import com.google.inject.Inject;
+import com.netflix.config.DynamicBooleanProperty;
+import com.netflix.config.DynamicPropertyFactory;
 import com.newrelic.api.agent.NewRelic;
 import com.sandeep.prototypes.address.entity.Address;
 import com.sandeep.prototypes.person.dependency.AddressClient;
@@ -46,14 +48,14 @@ import com.wordnik.swagger.annotations.ApiResponses;
 public class PersonResource {
   private static final String SUCCESS_METRIC_NAME = "Adobe/Social/Person/Address/200[count]";
   private static final String NOT_FOUND_METRIC_NAME = "Adobe/Social/Person/Address/404[count]";
-  private static final String SERVICE_UNAVAILABLE_METRIC_NAME =
-      "Adobe/Social/Person/Address/503[count]";
+  private static final String SERVICE_UNAVAILABLE_METRIC_NAME = "Adobe/Social/Person/Address/503[count]";
   private static final String TIMEOUT_METRIC_NAME = "Adobe/Social/Person/Address/408[count]";
   private static final String FAILED_METRIC_NAME = "Adobe/Social/Person/Address/500[count]";
   private final String message;
   private static Map<Integer, Person> people = new HashMap<Integer, Person>();
   private AddressClient addressClient;
   private static final Logger logger = LoggerFactory.getLogger(PersonResource.class);
+  private DynamicBooleanProperty useCustomMetrics = DynamicPropertyFactory.getInstance().getBooleanProperty("useCustomMetrics", false);
 
   @Inject
   public PersonResource(String message, AddressClient client) {
@@ -69,31 +71,59 @@ public class PersonResource {
   @Timed
   @Produces(MediaType.APPLICATION_JSON)
   @Path("/{id}")
-  @ApiOperation(value = "Find person by id",
-      notes = "Returns a person when id > 1 or nonintegers will simulate API error conditions",
+  @ApiOperation(value = "Find person by id", notes = "Returns a person when id > 1 or nonintegers will simulate API error conditions",
       response = Person.class)
-  @ApiResponses(value = {@ApiResponse(code = 400, message = "Invalid Id supplied"),
-      @ApiResponse(code = 404, message = "Person not found")})
+  @ApiResponses(value = {@ApiResponse(code = 400, message = "Invalid Id supplied"), @ApiResponse(code = 404, message = "Person not found")})
   public Response getPerson(@PathParam("id") Integer id) {
     if (id < 1) {
       return Response.status(Status.BAD_REQUEST).type(MediaType.APPLICATION_JSON).build();
     }
     Address address = null;
+    Map<String, Object> eventAttributes = new HashMap<String, Object>();
+    eventAttributes.put("caller-service-name", "Person-Service");
+    eventAttributes.put("callee-service-name", "Address-Service");
+    if (!useCustomMetrics.get()) {
+      NewRelic.getAgent().getInsights().recordCustomEvent("AddressClient-Start", eventAttributes);
+    }
     try {
       address = getAddressClient().getAddress(1);
-      NewRelic.incrementCounter(SUCCESS_METRIC_NAME);
+      if (useCustomMetrics.get()) {
+        NewRelic.incrementCounter(SUCCESS_METRIC_NAME);
+      } else {
+        eventAttributes.put("response-code", 200);
+      }
     } catch (AddressNotFoundException e) {
-      NewRelic.incrementCounter(NOT_FOUND_METRIC_NAME);
+      if (useCustomMetrics.get()) {
+        NewRelic.incrementCounter(NOT_FOUND_METRIC_NAME);
+      } else {
+        eventAttributes.put("response-code", e.getResponseCode());
+      }
       logger.error("Address not found. Reason {}", e.getMessage());
     } catch (AddressTemporarilyUnavailableException e) {
-      NewRelic.incrementCounter(SERVICE_UNAVAILABLE_METRIC_NAME);
+      if (useCustomMetrics.get()) {
+        NewRelic.incrementCounter(SERVICE_UNAVAILABLE_METRIC_NAME);
+      } else {
+        eventAttributes.put("response-code", e.getResponseCode());
+      }
       logger.error("Address service unavailable {}", e.getMessage());
     } catch (RequestTimeout e) {
-      NewRelic.incrementCounter(TIMEOUT_METRIC_NAME);
+      if (useCustomMetrics.get()) {
+        NewRelic.incrementCounter(TIMEOUT_METRIC_NAME);
+      } else {
+        eventAttributes.put("response-code", e.getResponseCode());
+      }
       logger.error("Address timeout {}", e.getMessage());
     } catch (AddressServiceException e) {
-      NewRelic.incrementCounter(FAILED_METRIC_NAME);
+      if (useCustomMetrics.get()) {
+        NewRelic.incrementCounter(FAILED_METRIC_NAME);
+      } else {
+        eventAttributes.put("response-code", e.getResponseCode());
+      }
       logger.error("Address lookup failed {}", e.getMessage());
+    } finally {
+      if (!useCustomMetrics.get()) {
+        NewRelic.getAgent().getInsights().recordCustomEvent("AddressClient", eventAttributes);
+      }
     }
 
     Person person = people.get(id);
@@ -102,9 +132,7 @@ public class PersonResource {
       person.setMessage(String.format(message, person.getFirstName(), person.getLastName()));
       return Response.status(Status.OK).type(MediaType.APPLICATION_JSON).entity(person).build();
     }
-    return Response.status(Status.NOT_FOUND)
-        .entity(String.format("Person with id %s not found", id)).type(MediaType.APPLICATION_JSON)
-        .build();
+    return Response.status(Status.NOT_FOUND).entity(String.format("Person with id %s not found", id)).type(MediaType.APPLICATION_JSON).build();
   }
 
   @POST

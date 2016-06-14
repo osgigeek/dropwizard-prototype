@@ -34,16 +34,13 @@ public class AddressClient {
   private final HttpClient client;
   // Its ok to cache this handle statically as the handle will refresh the underlying property when
   // its updated
-  private DynamicStringProperty addressUrl = DynamicPropertyFactory.getInstance()
-      .getStringProperty("addressUrl", "http://localhost:9100/address/%s");
+  private DynamicStringProperty addressUrl = DynamicPropertyFactory.getInstance().getStringProperty("addressUrl", "http://localhost:9100/address/%s");
 
-  private DynamicBooleanProperty useFailSafeRequests = DynamicPropertyFactory.getInstance()
-      .getBooleanProperty("useFailSafe", false);
+  private DynamicBooleanProperty useFailSafeRequests = DynamicPropertyFactory.getInstance().getBooleanProperty("useFailSafe", false);
 
   private static class AddressResponseHandler implements ResponseHandler<Address> {
 
-    public Address handleResponse(HttpResponse response) throws ClientProtocolException,
-        IOException {
+    public Address handleResponse(HttpResponse response) throws ClientProtocolException, IOException {
       BasicResponseHandler handler = new BasicResponseHandler();
       String message = handler.handleResponse(response);
       Address address = null;
@@ -76,8 +73,7 @@ public class AddressClient {
       if (!useFailSafeRequests.get()) {
         address = client.execute(getAddress, new AddressResponseHandler());
       } else {
-        address =
-            new FailSafeGetRequest(this.client, getAddress, new AddressResponseHandler()).execute();
+        address = new FailSafeGetRequest(this.client, getAddress, new AddressResponseHandler()).execute();
       }
     } catch (HttpResponseException e) {
       throw new AddressServiceExceptionBuilder(e).build();
